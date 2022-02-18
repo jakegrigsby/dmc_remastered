@@ -181,8 +181,6 @@ class DMC_Remastered_Env(core.Env):
         action = self._convert_action(action)
         assert self._true_action_space.contains(action)
         reward = 0
-        extra = {"internal_state": self._env.physics.get_state().copy()}
-
         for _ in range(self._frame_skip):
             time_step = self._env.step(action)
             reward += time_step.reward or 0
@@ -191,11 +189,12 @@ class DMC_Remastered_Env(core.Env):
                 break
         obs = self._get_obs(time_step)
         self.current_state = _flatten_obs(time_step.observation)
-        extra["discount"] = time_step.discount
-        return obs, reward, done, extra
+        return obs, reward, done, {}
 
-    def reset(self):
-        self.make_new_env()
+    def reset(self, soft=False):
+        if not soft:
+            # make a whole new env (new visual and/or dynamics seeds)
+            self.make_new_env()
         time_step = self._env.reset()
         self.current_state = _flatten_obs(time_step.observation)
         obs = self._get_obs(time_step)
