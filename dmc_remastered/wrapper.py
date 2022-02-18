@@ -138,7 +138,7 @@ class DMC_Remastered_Env(core.Env):
 
     def _get_obs(self, time_step):
         if self._from_pixels:
-            self._current_obs = self._render_env(
+            self._current_obs = self.render_env(
                 height=self._height, width=self._width, camera_id=self._camera_id
             )
             if self._channels_first:
@@ -200,7 +200,7 @@ class DMC_Remastered_Env(core.Env):
         obs = self._get_obs(time_step)
         return obs
 
-    def _render_env(self, mode="rgb_array", height=None, width=None, camera_id=0):
+    def render_env(self, mode="rgb_array", height=None, width=None, camera_id=0):
         assert mode == "rgb_array", "only support rgb_array mode, given %s" % mode
         height = height or self._height
         width = width or self._width
@@ -208,11 +208,14 @@ class DMC_Remastered_Env(core.Env):
         return self._env.physics.render(height=height, width=width, camera_id=camera_id)
 
     def render(self, *args, **kwargs):
-        assert self._from_pixels
-        if self._channels_first:
-            img = self._current_obs.transpose(1, 2, 0)
-        else:
+        if self._from_pixels:
             img = self._current_obs
+            if self._channels_first:
+                img = img.transpose(1, 2, 0)
+        else:
+            img = self.render_env()
+
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         cv2.imshow("DMCR", img)
         cv2.waitKey(1)
 

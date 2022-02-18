@@ -106,6 +106,8 @@ def dynamics_generalization(
     domain,
     task,
     num_levels,
+    # visual seed only impacts the render
+    visual_seed=0,
     vary=DMCR_VARY,
 ):
 
@@ -115,15 +117,19 @@ def dynamics_generalization(
         dynamics_seed_generator=uniform_seed_generator(
             random_start, random_start + num_levels
         ),
-        visual_seed_generator=fixed_seed_generator(0),
+        visual_seed_generator=fixed_seed_generator(visual_seed),
         from_pixels=False,
+        height=256,
+        width=256,
         frame_skip=1,
         vary=vary,
     )
     test_env = DMC_Remastered_Env(
         task_builder=ALL_ENVS[domain][task],
         dynamics_seed_generator=uniform_seed_generator(1, 1_000_000),
-        visual_seed_generator=fixed_seed_generator(0),
+        visual_seed_generator=fixed_seed_generator(visual_seed),
+        height=256,
+        width=256,
         from_pixels=False,
         frame_skip=1,
         vary=vary,
