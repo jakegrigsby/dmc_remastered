@@ -17,7 +17,12 @@ def register(domain, task):
 
 # register all the tasks
 from .ball_in_cup import catch
-from .benchmarks import classic, visual_generalization
+from .benchmarks import (
+    visual_classic,
+    visual_generalization,
+    dynamics_generalization,
+    full_generalization,
+)
 from .cartpole import balance, balance_sparse, swingup, swingup_sparse
 from .cheetah import run
 from .finger import spin, turn_easy, turn_hard

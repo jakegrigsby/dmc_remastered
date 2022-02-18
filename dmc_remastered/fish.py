@@ -103,11 +103,11 @@ class Upright(base.Task):
 
     def __init__(self, random=None):
         """Initializes an instance of `Upright`.
-    Args:
-      random: Either an existing `numpy.random.RandomState` instance, an
-        integer seed for creating a new `RandomState`, or None to select a seed
-        automatically.
-    """
+        Args:
+          random: Either an existing `numpy.random.RandomState` instance, an
+            integer seed for creating a new `RandomState`, or None to select a seed
+            automatically.
+        """
         super(Upright, self).__init__(random=random)
 
     def initialize_episode(self, physics):
@@ -138,11 +138,11 @@ class Swim(base.Task):
 
     def __init__(self, random=None):
         """Initializes an instance of `Swim`.
-    Args:
-      random: Optional, either a `numpy.random.RandomState` instance, an
-        integer seed for creating a new `RandomState`, or None to select a seed
-        automatically (default).
-    """
+        Args:
+          random: Optional, either a `numpy.random.RandomState` instance, an
+            integer seed for creating a new `RandomState`, or None to select a seed
+            automatically (default).
+        """
         super(Swim, self).__init__(random=random)
 
     def initialize_episode(self, physics):

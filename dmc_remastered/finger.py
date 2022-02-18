@@ -74,7 +74,10 @@ def spin(
     physics = Physics.from_xml_string(model, assets)
     task = Spin(random=dynamics_seed)
     return control.Environment(
-        physics, task, time_limit=time_limit, control_timestep=_CONTROL_TIMESTEP,
+        physics,
+        task,
+        time_limit=time_limit,
+        control_timestep=_CONTROL_TIMESTEP,
     )
 
 
@@ -88,7 +91,10 @@ def turn_easy(
     task = Turn(target_radius=_EASY_TARGET_SIZE, random=dynamics_seed)
     environment_kwargs = environment_kwargs or {}
     return control.Environment(
-        physics, task, time_limit=time_limit, control_timestep=_CONTROL_TIMESTEP,
+        physics,
+        task,
+        time_limit=time_limit,
+        control_timestep=_CONTROL_TIMESTEP,
     )
 
 
@@ -102,7 +108,10 @@ def turn_hard(
     task = Turn(target_radius=_HARD_TARGET_SIZE, random=dynamics_seed)
     environment_kwargs = environment_kwargs or {}
     return control.Environment(
-        physics, task, time_limit=time_limit, control_timestep=_CONTROL_TIMESTEP,
+        physics,
+        task,
+        time_limit=time_limit,
+        control_timestep=_CONTROL_TIMESTEP,
     )
 
 
@@ -159,11 +168,11 @@ class Spin(base.Task):
 
     def __init__(self, random=None):
         """Initializes a new `Spin` instance.
-    Args:
-      random: Optional, either a `numpy.random.RandomState` instance, an
-        integer seed for creating a new `RandomState`, or None to select a seed
-        automatically (default).
-    """
+        Args:
+          random: Optional, either a `numpy.random.RandomState` instance, an
+            integer seed for creating a new `RandomState`, or None to select a seed
+            automatically (default).
+        """
         super(Spin, self).__init__(random=random)
 
     def initialize_episode(self, physics):
@@ -191,12 +200,12 @@ class Turn(base.Task):
 
     def __init__(self, target_radius, random=None):
         """Initializes a new `Turn` instance.
-    Args:
-      target_radius: Radius of the target site, which specifies the goal angle.
-      random: Optional, either a `numpy.random.RandomState` instance, an
-        integer seed for creating a new `RandomState`, or None to select a seed
-        automatically (default).
-    """
+        Args:
+          target_radius: Radius of the target site, which specifies the goal angle.
+          random: Optional, either a `numpy.random.RandomState` instance, an
+            integer seed for creating a new `RandomState`, or None to select a seed
+            automatically (default).
+        """
         self._target_radius = target_radius
         super(Turn, self).__init__(random=random)
 

@@ -3,6 +3,7 @@ import random
 
 import gym
 import numpy as np
+import cv2
 from dm_env import specs
 from gym import Wrapper, core, spaces
 
@@ -75,6 +76,7 @@ class DMC_Remastered_Env(core.Env):
 
     source: https://github.com/denisyarats/dmc2gym
     """
+
     def __init__(
         self,
         task_builder,
@@ -84,6 +86,7 @@ class DMC_Remastered_Env(core.Env):
         width=84,
         camera_id=0,
         frame_skip=1,
+        from_pixels=True,
         environment_kwargs=None,
         channels_first=True,
         vary=DMCR_VARY,
@@ -114,6 +117,8 @@ class DMC_Remastered_Env(core.Env):
 
         self._state_space = _spec_to_box(self._env.observation_spec().values())
 
+        self._from_pixels = from_pixels
+
         self.current_state = None
 
         self.make_new_env()
@@ -122,7 +127,9 @@ class DMC_Remastered_Env(core.Env):
         dynamics_seed = self._dynamics_seed_gen()
         visual_seed = self._visual_seed_gen()
         self._env = self._task_builder(
-            dynamics_seed=dynamics_seed, visual_seed=visual_seed, vary=self._vary,
+            dynamics_seed=dynamics_seed,
+            visual_seed=visual_seed,
+            vary=self._vary,
         )
         self.seed(seed=dynamics_seed)
 
@@ -130,12 +137,15 @@ class DMC_Remastered_Env(core.Env):
         return getattr(self._env, name)
 
     def _get_obs(self, time_step):
-        obs = self.render(
-            height=self._height, width=self._width, camera_id=self._camera_id
-        )
-        if self._channels_first:
-            obs = obs.transpose(2, 0, 1).copy()
-        return obs
+        if self._from_pixels:
+            self._current_obs = self._render_env(
+                height=self._height, width=self._width, camera_id=self._camera_id
+            )
+            if self._channels_first:
+                self._current_obs = self._current_obs.transpose(2, 0, 1).copy()
+            return self._current_obs
+        else:
+            return self.current_state
 
     def _convert_action(self, action):
         action = action.astype(np.float64)
@@ -148,7 +158,10 @@ class DMC_Remastered_Env(core.Env):
 
     @property
     def observation_space(self):
-        return self._observation_space
+        if self._from_pixels:
+            return self._observation_space
+        else:
+            return self._state_space
 
     @property
     def state_space(self):
@@ -188,12 +201,21 @@ class DMC_Remastered_Env(core.Env):
         obs = self._get_obs(time_step)
         return obs
 
-    def render(self, mode="rgb_array", height=None, width=None, camera_id=0):
+    def _render_env(self, mode="rgb_array", height=None, width=None, camera_id=0):
         assert mode == "rgb_array", "only support rgb_array mode, given %s" % mode
         height = height or self._height
         width = width or self._width
         camera_id = camera_id or self._camera_id
         return self._env.physics.render(height=height, width=width, camera_id=camera_id)
+
+    def render(self, *args, **kwargs):
+        assert self._from_pixels
+        if self._channels_first:
+            img = self._current_obs.transpose(1, 2, 0)
+        else:
+            img = self._current_obs
+        cv2.imshow("DMCR", img)
+        cv2.waitKey(1)
 
 
 from dmc_remastered import ALL_ENVS
@@ -207,6 +229,7 @@ def make(
     frame_stack=3,
     height=84,
     width=84,
+    from_pixels=True,
     camera_id=0,
     frame_skip=1,
     channels_last=False,
@@ -225,6 +248,7 @@ def make(
         visual_seed_generator=lambda: visual_seed,
         dynamics_seed_generator=lambda: dynamics_seed,
         camera_id=camera_id,
+        from_pixels=from_pixels,
         frame_skip=frame_skip,
         channels_first=not channels_last,
         vary=vary,

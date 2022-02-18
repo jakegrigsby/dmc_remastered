@@ -54,7 +54,10 @@ def hop(
     physics = Physics.from_xml_string(model, assets)
     task = Hopper(hopping=True, random=dynamics_seed)
     return control.Environment(
-        physics, task, time_limit=time_limit, control_timestep=_CONTROL_TIMESTEP,
+        physics,
+        task,
+        time_limit=time_limit,
+        control_timestep=_CONTROL_TIMESTEP,
     )
 
 
@@ -67,7 +70,10 @@ def stand(
     physics = Physics.from_xml_string(model, assets)
     task = Hopper(hopping=False, random=dynamics_seed)
     return control.Environment(
-        physics, task, time_limit=time_limit, control_timestep=_CONTROL_TIMESTEP,
+        physics,
+        task,
+        time_limit=time_limit,
+        control_timestep=_CONTROL_TIMESTEP,
     )
 
 
@@ -92,13 +98,13 @@ class Hopper(base.Task):
 
     def __init__(self, hopping, random=None):
         """Initialize an instance of `Hopper`.
-    Args:
-      hopping: Boolean, if True the task is to hop forwards, otherwise it is to
-        balance upright.
-      random: Optional, either a `numpy.random.RandomState` instance, an
-        integer seed for creating a new `RandomState`, or None to select a seed
-        automatically (default).
-    """
+        Args:
+          hopping: Boolean, if True the task is to hop forwards, otherwise it is to
+            balance upright.
+          random: Optional, either a `numpy.random.RandomState` instance, an
+            integer seed for creating a new `RandomState`, or None to select a seed
+            automatically (default).
+        """
         self._hopping = hopping
         super(Hopper, self).__init__(random=random)
 

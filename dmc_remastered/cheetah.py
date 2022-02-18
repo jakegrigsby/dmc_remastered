@@ -50,7 +50,11 @@ def run(
     assets, _ = get_assets(visual_seed, vary)
     physics = Physics.from_xml_string(model, assets)
     task = Cheetah(random=dynamics_seed)
-    return control.Environment(physics, task, time_limit=time_limit,)
+    return control.Environment(
+        physics,
+        task,
+        time_limit=time_limit,
+    )
 
 
 class Physics(mujoco.Physics):

@@ -55,7 +55,10 @@ def stand(
     physics = Physics.from_xml_string(model, assets)
     task = Humanoid(move_speed=0, pure_state=False, random=dynamics_seed)
     return control.Environment(
-        physics, task, time_limit=time_limit, control_timestep=_CONTROL_TIMESTEP,
+        physics,
+        task,
+        time_limit=time_limit,
+        control_timestep=_CONTROL_TIMESTEP,
     )
 
 
@@ -68,7 +71,10 @@ def walk(
     physics = Physics.from_xml_string(model, assets)
     task = Humanoid(move_speed=_WALK_SPEED, pure_state=False, random=dynamics_seed)
     return control.Environment(
-        physics, task, time_limit=time_limit, control_timestep=_CONTROL_TIMESTEP,
+        physics,
+        task,
+        time_limit=time_limit,
+        control_timestep=_CONTROL_TIMESTEP,
     )
 
 
@@ -81,7 +87,10 @@ def run(
     physics = Physics.from_xml_string(model, assets)
     task = Humanoid(move_speed=_RUN_SPEED, pure_state=False, random=dynamics_seed)
     return control.Environment(
-        physics, task, time_limit=time_limit, control_timestep=_CONTROL_TIMESTEP,
+        physics,
+        task,
+        time_limit=time_limit,
+        control_timestep=_CONTROL_TIMESTEP,
     )
 
 
@@ -129,25 +138,25 @@ class Humanoid(base.Task):
 
     def __init__(self, move_speed, pure_state, random=None):
         """Initializes an instance of `Humanoid`.
-    Args:
-      move_speed: A float. If this value is zero, reward is given simply for
-        standing up. Otherwise this specifies a target horizontal velocity for
-        the walking task.
-      pure_state: A bool. Whether the observations consist of the pure MuJoCo
-        state or includes some useful features thereof.
-      random: Optional, either a `numpy.random.RandomState` instance, an
-        integer seed for creating a new `RandomState`, or None to select a seed
-        automatically (default).
-    """
+        Args:
+          move_speed: A float. If this value is zero, reward is given simply for
+            standing up. Otherwise this specifies a target horizontal velocity for
+            the walking task.
+          pure_state: A bool. Whether the observations consist of the pure MuJoCo
+            state or includes some useful features thereof.
+          random: Optional, either a `numpy.random.RandomState` instance, an
+            integer seed for creating a new `RandomState`, or None to select a seed
+            automatically (default).
+        """
         self._move_speed = move_speed
         self._pure_state = pure_state
         super(Humanoid, self).__init__(random=random)
 
     def initialize_episode(self, physics):
         """Sets the state of the environment at the start of each episode.
-    Args:
-      physics: An instance of `Physics`.
-    """
+        Args:
+          physics: An instance of `Physics`.
+        """
         # Find a collision-free random initial configuration.
         penetrating = True
         while penetrating:

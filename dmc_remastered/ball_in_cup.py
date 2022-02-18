@@ -47,7 +47,10 @@ def catch(
     physics = Physics.from_xml_string(model, assets)
     task = BallInCup(random=dynamics_seed)
     return control.Environment(
-        physics, task, time_limit=time_limit, control_timestep=_CONTROL_TIMESTEP,
+        physics,
+        task,
+        time_limit=time_limit,
+        control_timestep=_CONTROL_TIMESTEP,
     )
 
 
@@ -73,9 +76,9 @@ class BallInCup(base.Task):
 
     def initialize_episode(self, physics):
         """Sets the state of the environment at the start of each episode.
-    Args:
-      physics: An instance of `Physics`.
-    """
+        Args:
+          physics: An instance of `Physics`.
+        """
         # Find a collision-free random initial position of the ball.
         penetrating = True
         while penetrating:

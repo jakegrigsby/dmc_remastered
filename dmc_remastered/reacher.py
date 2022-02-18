@@ -48,7 +48,11 @@ def easy(
     assets, _ = get_assets(visual_seed, vary)
     physics = Physics.from_xml_string(model, assets)
     task = Reacher(target_size=_BIG_TARGET, random=dynamics_seed)
-    return control.Environment(physics, task, time_limit=time_limit,)
+    return control.Environment(
+        physics,
+        task,
+        time_limit=time_limit,
+    )
 
 
 @register("reacher", "hard")
@@ -59,7 +63,11 @@ def hard(
     assets, _ = get_assets(visual_seed, vary)
     physics = Physics.from_xml_string(model, assets)
     task = Reacher(target_size=_SMALL_TARGET, random=dynamics_seed)
-    return control.Environment(physics, task, time_limit=time_limit,)
+    return control.Environment(
+        physics,
+        task,
+        time_limit=time_limit,
+    )
 
 
 class Physics(mujoco.Physics):
@@ -82,13 +90,13 @@ class Reacher(base.Task):
 
     def __init__(self, target_size, random=None):
         """Initialize an instance of `Reacher`.
-    Args:
-      target_size: A `float`, tolerance to determine whether finger reached the
-          target.
-      random: Optional, either a `numpy.random.RandomState` instance, an
-        integer seed for creating a new `RandomState`, or None to select a seed
-        automatically (default).
-    """
+        Args:
+          target_size: A `float`, tolerance to determine whether finger reached the
+              target.
+          random: Optional, either a `numpy.random.RandomState` instance, an
+            integer seed for creating a new `RandomState`, or None to select a seed
+            automatically (default).
+        """
         self._target_size = target_size
         super(Reacher, self).__init__(random=random)
 
