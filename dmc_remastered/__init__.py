@@ -1,7 +1,18 @@
 import os
 
 SUITE_DIR = os.path.dirname(__file__)
-DMCR_VARY = ["bg", "floor", "body", "target", "reflectance", "camera", "light"]
+DMCR_VARY = [
+    "bg",
+    "floor",
+    "body",
+    "target",
+    "reflectance",
+    "camera",
+    "light",
+    "body_shape",
+    "motors",
+    "friction",
+]
 ALL_ENVS = {}
 
 

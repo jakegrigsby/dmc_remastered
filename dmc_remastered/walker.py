@@ -44,16 +44,35 @@ def get_model(visual_seed, dynamics_seed, vary=["camera"]):
             torso_height = random.uniform(0.2, 0.5)
             foot_width = random.uniform(0.03, 0.08)
             foot_length = random.uniform(0.06, 0.2)
+            motor_damping = random.uniform(0.03, 0.75)
+            armature = random.uniform(0.002, 0.1)
+            ground_friction = random.uniform(0.15, 1.75)
+            knee_range = random.uniform(-175, -125)
+            ankle_range = random.uniform(15, 70)
         torso_size = f"{torso_width} {torso_height}"
         foot_size = f"{foot_width} {foot_length}"
-        # torso
-        xml[6][1][6].attrib["size"] = torso_size
-        # right foot
-        xml[6][1][7][2][2][1].attrib["size"] = foot_size
-        # left foot
-        xml[6][1][8][2][2][1].attrib["size"] = foot_size
-        choices["torso_size"] = torso_size
-        choices["foot_size"] = foot_size
+        if "body_shape" in vary:
+            # torso
+            xml[6][1][6].attrib["size"] = torso_size
+            # right foot
+            xml[6][1][7][2][2][1].attrib["size"] = foot_size
+            # left foot
+            xml[6][1][8][2][2][1].attrib["size"] = foot_size
+            # left knee joint
+            xml[6][1][7][2][0].attrib["range"] = f"{knee_range} 0"
+            # right knee joint
+            xml[6][1][8][2][0].attrib["range"] = f"{knee_range} 0"
+            # left ankle
+            xml[6][1][7][2][2][0].attrib["range"] = f"-{ankle_range} {ankle_range}"
+            # right ankle
+            xml[6][1][8][2][2][0].attrib["range"] = f"-{ankle_range} {ankle_range}"
+            choices["torso_size"] = torso_size
+            choices["foot_size"] = foot_size
+        if "motors" in vary:
+            xml[5][0].attrib["damping"] = f"{motor_damping}"
+            xml[5][0].attrib["armature"] = f"{armature}"
+        if "friction" in vary:
+            xml[5][1].attrib["friction"] = f"{ground_friction} .1 .1"
     return ET.tostring(xml, encoding="utf8", method="xml"), choices
 
 
