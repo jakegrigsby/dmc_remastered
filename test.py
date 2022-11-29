@@ -1,16 +1,32 @@
+import sys
 import dmc_remastered as dmcr
 
 import matplotlib.pyplot as plt
 
-env, _ = dmcr.visual_generalization("walker", "walk", 100000)
-imgs = [env.reset() for _ in range(16)]
+
+if sys.argv[1] == "dynamics":
+    env, _ = dmcr.dynamics_generalization(
+        sys.argv[2], sys.argv[3], 100000, visual_seed=0
+    )
+elif sys.argv[1] == "visuals":
+    env, _ = dmcr.visual_generalization(sys.argv[2], sys.argv[3], 100000)
+elif sys.argv[1] == "both":
+    env, _ = dmcr.full_generalization(sys.argv[2], sys.argv[3], 100000)
+
+else:
+    raise ValueError()
+
+imgs = []
+for _ in range(16):
+    env.reset()
+    imgs.append(env.render_env())
 
 from mpl_toolkits.axes_grid1 import ImageGrid
 
-fig = plt.figure(figsize=(5.0, 5.0))
+fig = plt.figure(figsize=(10.0, 10.0))
 grid = ImageGrid(fig, 111, nrows_ncols=(4, 4))
 
 for ax, im in zip(grid, imgs):
-    ax.imshow(im[:3].transpose(1, 2, 0))
+    ax.imshow(im)
 
 plt.show()

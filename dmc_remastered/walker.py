@@ -73,10 +73,10 @@ def get_model(visual_seed, dynamics_seed, vary=["camera"]):
             xml[5][0].attrib["armature"] = f"{armature}"
         if "friction" in vary:
             xml[5][1].attrib["friction"] = f"{ground_friction} .1 .1"
-    return ET.tostring(xml, encoding="utf8", method="xml"), choices
+    return ET.tostring(xml, encoding="unicode", method="xml"), choices
 
 
-@register("walker", "stand")
+@register("walker", "stand", visuals_vary=True, dynamics_vary=True)
 def stand(
     time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
 ):
@@ -94,7 +94,7 @@ def stand(
     )
 
 
-@register("walker", "walk")
+@register("walker", "walk", visuals_vary=True, dynamics_vary=True)
 def walk(
     time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
 ):
@@ -112,7 +112,7 @@ def walk(
     )
 
 
-@register("walker", "run")
+@register("walker", "run", visuals_vary=True, dynamics_vary=True)
 def run(
     time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
 ):

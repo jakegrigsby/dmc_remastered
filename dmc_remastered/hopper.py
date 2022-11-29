@@ -30,7 +30,7 @@ def get_model(visual_seed, vary=["camera"]):
         if "camera" in vary:
             hopper_xml[6][0].attrib["euler"] = f"{euler_x} {euler_y} {euler_z}"
             hopper_xml[6][0].attrib["pos"] = f"{camera_x} {camera_y} {camera_z}"
-    return ET.tostring(hopper_xml, encoding="utf8", method="xml")
+    return ET.tostring(hopper_xml, encoding="unicode", method="xml")
 
 
 _CONTROL_TIMESTEP = 0.02  # (Seconds)
@@ -45,7 +45,7 @@ _STAND_HEIGHT = 0.6
 _HOP_SPEED = 2
 
 
-@register("hopper", "hop")
+@register("hopper", "hop", visuals_vary=True, dynamics_vary=False)
 def hop(
     time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
 ):
@@ -61,7 +61,7 @@ def hop(
     )
 
 
-@register("hopper", "stand")
+@register("hopper", "stand", visuals_vary=True, dynamics_vary=False)
 def stand(
     time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
 ):

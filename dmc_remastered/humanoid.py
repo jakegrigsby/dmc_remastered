@@ -34,7 +34,7 @@ def get_model(visual_seed, vary=["camera", "light"]):
             xml[6][1][1].attrib["pos"] = f"{camera_x} {camera_y} {camera_z}"
         if "light" in vary:
             xml[6][1][0].attrib["pos"] = f"{light_x} {light_y} {light_z}"
-    return ET.tostring(xml, encoding="utf8", method="xml")
+    return ET.tostring(xml, encoding="unicode", method="xml")
 
 
 _DEFAULT_TIME_LIMIT = 25
@@ -46,7 +46,7 @@ _WALK_SPEED = 1
 _RUN_SPEED = 10
 
 
-@register("humanoid", "stand")
+@register("humanoid", "stand", visuals_vary=True, dynamics_vary=False)
 def stand(
     time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
 ):
@@ -62,7 +62,7 @@ def stand(
     )
 
 
-@register("humanoid", "walk")
+@register("humanoid", "walk", visuals_vary=True, dynamics_vary=False)
 def walk(
     time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
 ):
@@ -78,7 +78,7 @@ def walk(
     )
 
 
-@register("humanoid", "run")
+@register("humanoid", "run", visuals_vary=True, dynamics_vary=False)
 def run(
     time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
 ):

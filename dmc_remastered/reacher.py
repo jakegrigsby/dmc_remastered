@@ -37,10 +37,10 @@ def get_model(visual_seed, vary=["camera", "light"]):
             xml[5][1].attrib["pos"] = f"{camera_x} {camera_y} {camera_z}"
         if "light" in vary:
             xml[5][0].attrib["pos"] = f"{light_pos_x} {light_pos_y} {light_pos_z}"
-    return ET.tostring(xml, encoding="utf8", method="xml")
+    return ET.tostring(xml, encoding="unicode", method="xml")
 
 
-@register("reacher", "easy")
+@register("reacher", "easy", visuals_vary=True, dynamics_vary=False)
 def easy(
     time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
 ):
@@ -55,7 +55,7 @@ def easy(
     )
 
 
-@register("reacher", "hard")
+@register("reacher", "hard", visuals_vary=True, dynamics_vary=False)
 def hard(
     time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
 ):

@@ -14,13 +14,23 @@ DMCR_VARY = [
     "friction",
 ]
 ALL_ENVS = {}
+VISUAL_ENVS = {}
+DYNAMICS_ENVS = {}
 
 
-def register(domain, task):
+def register(domain: str, task: str, visuals_vary: bool, dynamics_vary: bool):
     def _register(func):
         if domain not in ALL_ENVS:
             ALL_ENVS[domain] = {}
         ALL_ENVS[domain][task] = func
+        if visuals_vary:
+            if domain not in VISUAL_ENVS:
+                VISUAL_ENVS[domain] = {}
+            VISUAL_ENVS[domain][task] = func
+        if dynamics_vary:
+            if domain not in DYNAMICS_ENVS:
+                DYNAMICS_ENVS[domain] = {}
+            DYNAMICS_ENVS[domain][task] = func
         return func
 
     return _register

@@ -8,7 +8,7 @@ from dmc_remastered.rng import dmcr_random
 
 
 def load_asset_file(name):
-    with open(name, mode="r") as f:
+    with open(name, mode="rb") as f:
         return f.read()
 
 
@@ -143,12 +143,12 @@ def get_assets(visual_seed, vary=DMCR_VARY):
             choices_dict["shadowsize"] = shadow_size
 
         new_assets["./assets/skybox.xml"] = ET.tostring(
-            skybox_xml, encoding="utf8", method="xml"
+            skybox_xml, encoding="utf-8", method="xml"
         )
         new_assets["./assets/materials.xml"] = ET.tostring(
-            materials_xml, encoding="utf8", method="xml"
+            materials_xml, encoding="utf-8", method="xml"
         )
         new_assets["./assets/visual.xml"] = ET.tostring(
-            visual_xml, encoding="utf8", method="xml"
+            visual_xml, encoding="utf-8", method="xml"
         )
     return new_assets, choices_dict

@@ -39,10 +39,10 @@ def get_model(visual_seed, vary=["camera", "light"]):
             light_z = random.uniform(1, 5)
             if "light" in vary:
                 xml[7][1][0].attrib["pos"] = f"{light_x} {light_y} {light_z}"
-    return ET.tostring(xml, encoding="utf8", method="xml")
+    return ET.tostring(xml, encoding="unicode", method="xml")
 
 
-@register("cheetah", "run")
+@register("cheetah", "run", visuals_vary=True, dynamics_vary=False)
 def run(
     time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
 ):

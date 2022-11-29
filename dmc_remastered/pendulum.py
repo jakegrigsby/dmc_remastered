@@ -35,7 +35,7 @@ def get_model(visual_seed, vary=["camera", "light"]):
         if "camera" in vary:
             xml[4][2].attrib["pos"] = f"{camera_x} {camera_y} {camera_z}"
             xml[4][2].attrib["xyaxes"] = f"1 0 0 0 {tilt} 1"
-    return ET.tostring(xml, encoding="utf8", method="xml")
+    return ET.tostring(xml, encoding="unicode", method="xml")
 
 
 _DEFAULT_TIME_LIMIT = 20
@@ -43,7 +43,7 @@ _ANGLE_BOUND = 8
 _COSINE_BOUND = np.cos(np.deg2rad(_ANGLE_BOUND))
 
 
-@register("pendulum", "swingup")
+@register("pendulum", "swingup", visuals_vary=True, dynamics_vary=False)
 def swingup(
     time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
 ):

@@ -2,7 +2,7 @@ import random
 
 import numpy as np
 
-from dmc_remastered import ALL_ENVS, DMCR_VARY
+from dmc_remastered import ALL_ENVS, DMCR_VARY, VISUAL_ENVS, DYNAMICS_ENVS
 
 from .wrapper import DMC_Remastered_Env, FrameStack
 
@@ -29,10 +29,9 @@ def visual_sim2real(
     channels_last=False,
     vary=DMCR_VARY,
 ):
-
     random_start = random.randint(1, 1_000_000)
     train_env = DMC_Remastered_Env(
-        task_builder=ALL_ENVS[domain][task],
+        task_builder=VISUAL_ENVS[domain][task],
         visual_seed_generator=uniform_seed_generator(
             random_start, random_start + num_levels
         ),
@@ -46,7 +45,7 @@ def visual_sim2real(
         vary=vary,
     )
     test_env = DMC_Remastered_Env(
-        task_builder=ALL_ENVS[domain][task],
+        task_builder=VISUAL_ENVS[domain][task],
         visual_seed_generator=fixed_seed_generator(0),
         dynamics_seed_generator=fixed_seed_generator(0),
         height=height,
@@ -110,10 +109,16 @@ def dynamics_generalization(
     visual_seed=0,
     vary=DMCR_VARY,
 ):
+    try:
+        DYNAMICS_ENVS[domain][task]
+    except KeyError:
+        raise KeyError(
+            f"{domain} {task} is not configured for dynamics generalization."
+        )
 
     random_start = random.randint(1, 1_000_000)
     train_env = DMC_Remastered_Env(
-        task_builder=ALL_ENVS[domain][task],
+        task_builder=DYNAMICS_ENVS[domain][task],
         dynamics_seed_generator=uniform_seed_generator(
             random_start, random_start + num_levels
         ),
@@ -125,7 +130,7 @@ def dynamics_generalization(
         vary=vary,
     )
     test_env = DMC_Remastered_Env(
-        task_builder=ALL_ENVS[domain][task],
+        task_builder=DYNAMICS_ENVS[domain][task],
         dynamics_seed_generator=uniform_seed_generator(1, 1_000_000),
         visual_seed_generator=fixed_seed_generator(visual_seed),
         height=256,
@@ -148,6 +153,11 @@ def full_generalization(
     channels_last=False,
     vary=DMCR_VARY,
 ):
+    try:
+        VISUAL_ENVS[domain][task]
+        DYNAMICS_ENVS[domain][task]
+    except KeyError:
+        raise KeyError(f"{domain} {task} is not configured for full generalization.")
 
     random_start = random.randint(1, 1_000_000)
     train_env = DMC_Remastered_Env(
@@ -195,10 +205,14 @@ def visual_generalization(
     channels_last=False,
     vary=DMCR_VARY,
 ):
+    try:
+        VISUAL_ENVS[domain][task]
+    except KeyError:
+        raise KeyError(f"{domain} {task} is not configured for visual generalization.")
 
     random_start = random.randint(1, 1_000_000)
     train_env = DMC_Remastered_Env(
-        task_builder=ALL_ENVS[domain][task],
+        task_builder=VISUAL_ENVS[domain][task],
         visual_seed_generator=uniform_seed_generator(
             random_start, random_start + num_levels
         ),
@@ -212,7 +226,7 @@ def visual_generalization(
         vary=vary,
     )
     test_env = DMC_Remastered_Env(
-        task_builder=ALL_ENVS[domain][task],
+        task_builder=VISUAL_ENVS[domain][task],
         visual_seed_generator=uniform_seed_generator(1, 1_000_000),
         dynamics_seed_generator=fixed_seed_generator(0),
         height=height,
