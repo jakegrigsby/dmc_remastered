@@ -30,7 +30,7 @@ def get_model(visual_seed, vary=["camera"]):
         if "camera" in vary:
             hopper_xml[6][0].attrib["euler"] = f"{euler_x} {euler_y} {euler_z}"
             hopper_xml[6][0].attrib["pos"] = f"{camera_x} {camera_y} {camera_z}"
-    return ET.tostring(hopper_xml, encoding="utf8", method="xml")
+    return ET.tostring(hopper_xml, encoding="unicode", method="xml")
 
 
 _CONTROL_TIMESTEP = 0.02  # (Seconds)
@@ -45,7 +45,7 @@ _STAND_HEIGHT = 0.6
 _HOP_SPEED = 2
 
 
-@register("hopper", "hop")
+@register("hopper", "hop", visuals_vary=True, dynamics_vary=False)
 def hop(
     time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
 ):
@@ -54,11 +54,14 @@ def hop(
     physics = Physics.from_xml_string(model, assets)
     task = Hopper(hopping=True, random=dynamics_seed)
     return control.Environment(
-        physics, task, time_limit=time_limit, control_timestep=_CONTROL_TIMESTEP,
+        physics,
+        task,
+        time_limit=time_limit,
+        control_timestep=_CONTROL_TIMESTEP,
     )
 
 
-@register("hopper", "stand")
+@register("hopper", "stand", visuals_vary=True, dynamics_vary=False)
 def stand(
     time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
 ):
@@ -67,7 +70,10 @@ def stand(
     physics = Physics.from_xml_string(model, assets)
     task = Hopper(hopping=False, random=dynamics_seed)
     return control.Environment(
-        physics, task, time_limit=time_limit, control_timestep=_CONTROL_TIMESTEP,
+        physics,
+        task,
+        time_limit=time_limit,
+        control_timestep=_CONTROL_TIMESTEP,
     )
 
 
@@ -92,13 +98,13 @@ class Hopper(base.Task):
 
     def __init__(self, hopping, random=None):
         """Initialize an instance of `Hopper`.
-    Args:
-      hopping: Boolean, if True the task is to hop forwards, otherwise it is to
-        balance upright.
-      random: Optional, either a `numpy.random.RandomState` instance, an
-        integer seed for creating a new `RandomState`, or None to select a seed
-        automatically (default).
-    """
+        Args:
+          hopping: Boolean, if True the task is to hop forwards, otherwise it is to
+            balance upright.
+          random: Optional, either a `numpy.random.RandomState` instance, an
+            integer seed for creating a new `RandomState`, or None to select a seed
+            automatically (default).
+        """
         self._hopping = hopping
         super(Hopper, self).__init__(random=random)
 

@@ -1,15 +1,36 @@
 import os
 
 SUITE_DIR = os.path.dirname(__file__)
-DMCR_VARY = ["bg", "floor", "body", "target", "reflectance", "camera", "light"]
+DMCR_VARY = [
+    "bg",
+    "floor",
+    "body",
+    "target",
+    "reflectance",
+    "camera",
+    "light",
+    "body_shape",
+    "motors",
+    "friction",
+]
 ALL_ENVS = {}
+VISUAL_ENVS = {}
+DYNAMICS_ENVS = {}
 
 
-def register(domain, task):
+def register(domain: str, task: str, visuals_vary: bool, dynamics_vary: bool):
     def _register(func):
         if domain not in ALL_ENVS:
             ALL_ENVS[domain] = {}
         ALL_ENVS[domain][task] = func
+        if visuals_vary:
+            if domain not in VISUAL_ENVS:
+                VISUAL_ENVS[domain] = {}
+            VISUAL_ENVS[domain][task] = func
+        if dynamics_vary:
+            if domain not in DYNAMICS_ENVS:
+                DYNAMICS_ENVS[domain] = {}
+            DYNAMICS_ENVS[domain][task] = func
         return func
 
     return _register
@@ -17,7 +38,12 @@ def register(domain, task):
 
 # register all the tasks
 from .ball_in_cup import catch
-from .benchmarks import classic, visual_generalization
+from .benchmarks import (
+    visual_classic,
+    visual_generalization,
+    dynamics_generalization,
+    full_generalization,
+)
 from .cartpole import balance, balance_sparse, swingup, swingup_sparse
 from .cheetah import run
 from .finger import spin, turn_easy, turn_hard

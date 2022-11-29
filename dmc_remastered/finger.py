@@ -62,10 +62,10 @@ def get_model(visual_seed, vary=["camera", "light"]):
             xml[5][0].attrib[
                 "specular"
             ] = f"{light_spec+light_spec_del_r} {light_spec+light_spec_del_g} {light_spec+light_spec_del_b}"
-    return ET.tostring(xml, encoding="utf8", method="xml")
+    return ET.tostring(xml, encoding="unicode", method="xml")
 
 
-@register("finger", "spin")
+@register("finger", "spin", visuals_vary=True, dynamics_vary=False)
 def spin(
     time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
 ):
@@ -74,11 +74,14 @@ def spin(
     physics = Physics.from_xml_string(model, assets)
     task = Spin(random=dynamics_seed)
     return control.Environment(
-        physics, task, time_limit=time_limit, control_timestep=_CONTROL_TIMESTEP,
+        physics,
+        task,
+        time_limit=time_limit,
+        control_timestep=_CONTROL_TIMESTEP,
     )
 
 
-@register("finger", "turn_easy")
+@register("finger", "turn_easy", visuals_vary=True, dynamics_vary=False)
 def turn_easy(
     time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
 ):
@@ -88,11 +91,14 @@ def turn_easy(
     task = Turn(target_radius=_EASY_TARGET_SIZE, random=dynamics_seed)
     environment_kwargs = environment_kwargs or {}
     return control.Environment(
-        physics, task, time_limit=time_limit, control_timestep=_CONTROL_TIMESTEP,
+        physics,
+        task,
+        time_limit=time_limit,
+        control_timestep=_CONTROL_TIMESTEP,
     )
 
 
-@register("finger", "turn_hard")
+@register("finger", "turn_hard", visuals_vary=True, dynamics_vary=False)
 def turn_hard(
     time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
 ):
@@ -102,7 +108,10 @@ def turn_hard(
     task = Turn(target_radius=_HARD_TARGET_SIZE, random=dynamics_seed)
     environment_kwargs = environment_kwargs or {}
     return control.Environment(
-        physics, task, time_limit=time_limit, control_timestep=_CONTROL_TIMESTEP,
+        physics,
+        task,
+        time_limit=time_limit,
+        control_timestep=_CONTROL_TIMESTEP,
     )
 
 
@@ -159,11 +168,11 @@ class Spin(base.Task):
 
     def __init__(self, random=None):
         """Initializes a new `Spin` instance.
-    Args:
-      random: Optional, either a `numpy.random.RandomState` instance, an
-        integer seed for creating a new `RandomState`, or None to select a seed
-        automatically (default).
-    """
+        Args:
+          random: Optional, either a `numpy.random.RandomState` instance, an
+            integer seed for creating a new `RandomState`, or None to select a seed
+            automatically (default).
+        """
         super(Spin, self).__init__(random=random)
 
     def initialize_episode(self, physics):
@@ -191,12 +200,12 @@ class Turn(base.Task):
 
     def __init__(self, target_radius, random=None):
         """Initializes a new `Turn` instance.
-    Args:
-      target_radius: Radius of the target site, which specifies the goal angle.
-      random: Optional, either a `numpy.random.RandomState` instance, an
-        integer seed for creating a new `RandomState`, or None to select a seed
-        automatically (default).
-    """
+        Args:
+          target_radius: Radius of the target site, which specifies the goal angle.
+          random: Optional, either a `numpy.random.RandomState` instance, an
+            integer seed for creating a new `RandomState`, or None to select a seed
+            automatically (default).
+        """
         self._target_radius = target_radius
         super(Turn, self).__init__(random=random)
 

@@ -37,10 +37,10 @@ def get_model(visual_seed, vary=["camera", "light"]):
             xml[5][1].attrib["pos"] = f"{camera_x} {camera_y} {camera_z}"
         if "light" in vary:
             xml[5][0].attrib["pos"] = f"{light_pos_x} {light_pos_y} {light_pos_z}"
-    return ET.tostring(xml, encoding="utf8", method="xml")
+    return ET.tostring(xml, encoding="unicode", method="xml")
 
 
-@register("reacher", "easy")
+@register("reacher", "easy", visuals_vary=True, dynamics_vary=False)
 def easy(
     time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
 ):
@@ -48,10 +48,14 @@ def easy(
     assets, _ = get_assets(visual_seed, vary)
     physics = Physics.from_xml_string(model, assets)
     task = Reacher(target_size=_BIG_TARGET, random=dynamics_seed)
-    return control.Environment(physics, task, time_limit=time_limit,)
+    return control.Environment(
+        physics,
+        task,
+        time_limit=time_limit,
+    )
 
 
-@register("reacher", "hard")
+@register("reacher", "hard", visuals_vary=True, dynamics_vary=False)
 def hard(
     time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
 ):
@@ -59,7 +63,11 @@ def hard(
     assets, _ = get_assets(visual_seed, vary)
     physics = Physics.from_xml_string(model, assets)
     task = Reacher(target_size=_SMALL_TARGET, random=dynamics_seed)
-    return control.Environment(physics, task, time_limit=time_limit,)
+    return control.Environment(
+        physics,
+        task,
+        time_limit=time_limit,
+    )
 
 
 class Physics(mujoco.Physics):
@@ -82,13 +90,13 @@ class Reacher(base.Task):
 
     def __init__(self, target_size, random=None):
         """Initialize an instance of `Reacher`.
-    Args:
-      target_size: A `float`, tolerance to determine whether finger reached the
-          target.
-      random: Optional, either a `numpy.random.RandomState` instance, an
-        integer seed for creating a new `RandomState`, or None to select a seed
-        automatically (default).
-    """
+        Args:
+          target_size: A `float`, tolerance to determine whether finger reached the
+              target.
+          random: Optional, either a `numpy.random.RandomState` instance, an
+            integer seed for creating a new `RandomState`, or None to select a seed
+            automatically (default).
+        """
         self._target_size = target_size
         super(Reacher, self).__init__(random=random)
 

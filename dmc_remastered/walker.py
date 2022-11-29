@@ -25,7 +25,7 @@ _WALK_SPEED = 1
 _RUN_SPEED = 8
 
 
-def get_model(visual_seed, vary=["camera"]):
+def get_model(visual_seed, dynamics_seed, vary=["camera"]):
     choices = {"camera": "default", "light": "default"}
     with open(os.path.join(SUITE_DIR, os.path.join("assets", "walker.xml")), "r") as f:
         xml = ET.fromstring(f.read())
@@ -38,45 +38,95 @@ def get_model(visual_seed, vary=["camera"]):
         if "camera" in vary:
             xml[6][1][1].attrib["pos"] = camera
             choices["camera"] = camera
-    return ET.tostring(xml, encoding="utf8", method="xml"), choices
+    if dynamics_seed != 0:
+        with dmcr_random(dynamics_seed):
+            torso_width = random.uniform(0.05, 0.1)
+            torso_height = random.uniform(0.2, 0.5)
+            foot_width = random.uniform(0.03, 0.08)
+            foot_length = random.uniform(0.06, 0.2)
+            motor_damping = random.uniform(0.03, 0.75)
+            armature = random.uniform(0.002, 0.1)
+            ground_friction = random.uniform(0.15, 1.75)
+            knee_range = random.uniform(-175, -125)
+            ankle_range = random.uniform(15, 70)
+        torso_size = f"{torso_width} {torso_height}"
+        foot_size = f"{foot_width} {foot_length}"
+        if "body_shape" in vary:
+            # torso
+            xml[6][1][6].attrib["size"] = torso_size
+            # right foot
+            xml[6][1][7][2][2][1].attrib["size"] = foot_size
+            # left foot
+            xml[6][1][8][2][2][1].attrib["size"] = foot_size
+            # left knee joint
+            xml[6][1][7][2][0].attrib["range"] = f"{knee_range} 0"
+            # right knee joint
+            xml[6][1][8][2][0].attrib["range"] = f"{knee_range} 0"
+            # left ankle
+            xml[6][1][7][2][2][0].attrib["range"] = f"-{ankle_range} {ankle_range}"
+            # right ankle
+            xml[6][1][8][2][2][0].attrib["range"] = f"-{ankle_range} {ankle_range}"
+            choices["torso_size"] = torso_size
+            choices["foot_size"] = foot_size
+        if "motors" in vary:
+            xml[5][0].attrib["damping"] = f"{motor_damping}"
+            xml[5][0].attrib["armature"] = f"{armature}"
+        if "friction" in vary:
+            xml[5][1].attrib["friction"] = f"{ground_friction} .1 .1"
+    return ET.tostring(xml, encoding="unicode", method="xml"), choices
 
 
-@register("walker", "stand")
+@register("walker", "stand", visuals_vary=True, dynamics_vary=True)
 def stand(
     time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
 ):
-    model, local_choices = get_model(visual_seed, vary)
+    model, local_choices = get_model(
+        visual_seed=visual_seed, dynamics_seed=dynamics_seed, vary=vary
+    )
     assets, global_choices = get_assets(visual_seed, vary)
     physics = Physics.from_xml_string(model, assets)
-    task = PlanarWalker(move_speed=0, random=dynamics_seed)
+    task = PlanarWalker(move_speed=0, random=random.randint(1, 1_000_000))
     return control.Environment(
-        physics, task, time_limit=time_limit, control_timestep=_CONTROL_TIMESTEP,
+        physics,
+        task,
+        time_limit=time_limit,
+        control_timestep=_CONTROL_TIMESTEP,
     )
 
 
-@register("walker", "walk")
+@register("walker", "walk", visuals_vary=True, dynamics_vary=True)
 def walk(
     time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
 ):
-    model, local_choices = get_model(visual_seed, vary)
+    model, local_choices = get_model(
+        visual_seed=visual_seed, dynamics_seed=dynamics_seed, vary=vary
+    )
     assets, global_choices = get_assets(visual_seed, vary)
     physics = Physics.from_xml_string(model, assets)
-    task = PlanarWalker(move_speed=_WALK_SPEED, random=dynamics_seed)
+    task = PlanarWalker(move_speed=_WALK_SPEED, random=random.randint(1, 1_000_000))
     return control.Environment(
-        physics, task, time_limit=time_limit, control_timestep=_CONTROL_TIMESTEP,
+        physics,
+        task,
+        time_limit=time_limit,
+        control_timestep=_CONTROL_TIMESTEP,
     )
 
 
-@register("walker", "run")
+@register("walker", "run", visuals_vary=True, dynamics_vary=True)
 def run(
     time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
 ):
-    model, local_choices = get_model(visual_seed, vary)
+    model, local_choices = get_model(
+        visual_seed=visual_seed, dynamics_seed=dynamics_seed, vary=vary
+    )
     assets, global_choices = get_assets(visual_seed, vary)
     physics = Physics.from_xml_string(model, assets)
-    task = PlanarWalker(move_speed=_RUN_SPEED, random=dynamics_seed)
+    task = PlanarWalker(move_speed=_RUN_SPEED, random=random.randint(1, 1_000_000))
     return control.Environment(
-        physics, task, time_limit=time_limit, control_timestep=_CONTROL_TIMESTEP,
+        physics,
+        task,
+        time_limit=time_limit,
+        control_timestep=_CONTROL_TIMESTEP,
     )
 
 
@@ -105,24 +155,24 @@ class PlanarWalker(base.Task):
 
     def __init__(self, move_speed, random=None):
         """Initializes an instance of `PlanarWalker`.
-    Args:
-      move_speed: A float. If this value is zero, reward is given simply for
-        standing up. Otherwise this specifies a target horizontal velocity for
-        the walking task.
-      random: Optional, either a `numpy.random.RandomState` instance, an
-        integer seed for creating a new `RandomState`, or None to select a seed
-        automatically (default).
-    """
+        Args:
+          move_speed: A float. If this value is zero, reward is given simply for
+            standing up. Otherwise this specifies a target horizontal velocity for
+            the walking task.
+          random: Optional, either a `numpy.random.RandomState` instance, an
+            integer seed for creating a new `RandomState`, or None to select a seed
+            automatically (default).
+        """
         self._move_speed = move_speed
         super(PlanarWalker, self).__init__(random=random)
 
     def initialize_episode(self, physics):
         """Sets the state of the environment at the start of each episode.
-    In 'standing' mode, use initial orientation and small velocities.
-    In 'random' mode, randomize joint angles and let fall to the floor.
-    Args:
-      physics: An instance of `Physics`.
-    """
+        In 'standing' mode, use initial orientation and small velocities.
+        In 'random' mode, randomize joint angles and let fall to the floor.
+        Args:
+          physics: An instance of `Physics`.
+        """
         randomizers.randomize_limited_and_rotational_joints(physics, self.random)
         super(PlanarWalker, self).initialize_episode(physics)
 

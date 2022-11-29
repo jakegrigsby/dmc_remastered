@@ -35,7 +35,7 @@ def get_model(visual_seed, vary=["camera", "light"]):
         if "camera" in vary:
             xml[4][2].attrib["pos"] = f"{camera_x} {camera_y} {camera_z}"
             xml[4][2].attrib["xyaxes"] = f"1 0 0 0 {tilt} 1"
-    return ET.tostring(xml, encoding="utf8", method="xml")
+    return ET.tostring(xml, encoding="unicode", method="xml")
 
 
 _DEFAULT_TIME_LIMIT = 20
@@ -43,7 +43,7 @@ _ANGLE_BOUND = 8
 _COSINE_BOUND = np.cos(np.deg2rad(_ANGLE_BOUND))
 
 
-@register("pendulum", "swingup")
+@register("pendulum", "swingup", visuals_vary=True, dynamics_vary=False)
 def swingup(
     time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
 ):
@@ -75,31 +75,31 @@ class SwingUp(base.Task):
 
     def __init__(self, random=None):
         """Initialize an instance of `Pendulum`.
-    Args:
-      random: Optional, either a `numpy.random.RandomState` instance, an
-        integer seed for creating a new `RandomState`, or None to select a seed
-        automatically (default).
-    """
+        Args:
+          random: Optional, either a `numpy.random.RandomState` instance, an
+            integer seed for creating a new `RandomState`, or None to select a seed
+            automatically (default).
+        """
         super(SwingUp, self).__init__(random=random)
 
     def initialize_episode(self, physics):
         """Sets the state of the environment at the start of each episode.
-    Pole is set to a random angle between [-pi, pi).
-    Args:
-      physics: An instance of `Physics`.
-    """
+        Pole is set to a random angle between [-pi, pi).
+        Args:
+          physics: An instance of `Physics`.
+        """
         physics.named.data.qpos["hinge"] = self.random.uniform(-np.pi, np.pi)
         super(SwingUp, self).initialize_episode(physics)
 
     def get_observation(self, physics):
         """Returns an observation.
-    Observations are states concatenating pole orientation and angular velocity
-    and pixels from fixed camera.
-    Args:
-      physics: An instance of `physics`, Pendulum physics.
-    Returns:
-      A `dict` of observation.
-    """
+        Observations are states concatenating pole orientation and angular velocity
+        and pixels from fixed camera.
+        Args:
+          physics: An instance of `physics`, Pendulum physics.
+        Returns:
+          A `dict` of observation.
+        """
         obs = collections.OrderedDict()
         obs["orientation"] = physics.pole_orientation()
         obs["velocity"] = physics.angular_velocity()

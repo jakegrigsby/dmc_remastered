@@ -35,10 +35,10 @@ def get_model(visual_seed, vary=["camera", "light"]):
             light_z = random.uniform(4.5, 7.5)
             if "light" in vary:
                 xml[5][0].attrib["pos"] = f"{light_x} {light_y} {light_z}"
-    return ET.tostring(xml, encoding="utf8", method="xml")
+    return ET.tostring(xml, encoding="unicode", method="xml")
 
 
-@register("cartpole", "balance")
+@register("cartpole", "balance", visuals_vary=True, dynamics_vary=False)
 def balance(
     time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
 ):
@@ -49,7 +49,7 @@ def balance(
     return control.Environment(physics, task, time_limit=time_limit)
 
 
-@register("cartpole", "balance_sparse")
+@register("cartpole", "balance_sparse", visuals_vary=True, dynamics_vary=False)
 def balance_sparse(
     time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
 ):
@@ -60,7 +60,7 @@ def balance_sparse(
     return control.Environment(physics, task, time_limit=time_limit)
 
 
-@register("cartpole", "swingup")
+@register("cartpole", "swingup", visuals_vary=True, dynamics_vary=False)
 def swingup(
     time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
 ):
@@ -71,7 +71,7 @@ def swingup(
     return control.Environment(physics, task, time_limit=time_limit)
 
 
-@register("cartpole", "swingup_sparse")
+@register("cartpole", "swingup_sparse", visuals_vary=True, dynamics_vary=False)
 def swingup_sparse(
     time_limit=_DEFAULT_TIME_LIMIT,
     dynamics_seed=None,
@@ -138,36 +138,36 @@ class Physics(mujoco.Physics):
 
 class Balance(base.Task):
     """A Cartpole `Task` to balance the pole.
-  State is initialized either close to the target configuration or at a random
-  configuration.
-  """
+    State is initialized either close to the target configuration or at a random
+    configuration.
+    """
 
     _CART_RANGE = (-0.25, 0.25)
     _ANGLE_COSINE_RANGE = (0.995, 1)
 
     def __init__(self, swing_up, sparse, random=None):
         """Initializes an instance of `Balance`.
-    Args:
-      swing_up: A `bool`, which if `True` sets the cart to the middle of the
-        slider and the pole pointing towards the ground. Otherwise, sets the
-        cart to a random position on the slider and the pole to a random
-        near-vertical position.
-      sparse: A `bool`, whether to return a sparse or a smooth reward.
-      random: Optional, either a `numpy.random.RandomState` instance, an
-        integer seed for creating a new `RandomState`, or None to select a seed
-        automatically (default).
-    """
+        Args:
+          swing_up: A `bool`, which if `True` sets the cart to the middle of the
+            slider and the pole pointing towards the ground. Otherwise, sets the
+            cart to a random position on the slider and the pole to a random
+            near-vertical position.
+          sparse: A `bool`, whether to return a sparse or a smooth reward.
+          random: Optional, either a `numpy.random.RandomState` instance, an
+            integer seed for creating a new `RandomState`, or None to select a seed
+            automatically (default).
+        """
         self._sparse = sparse
         self._swing_up = swing_up
         super(Balance, self).__init__(random=random)
 
     def initialize_episode(self, physics):
         """Sets the state of the environment at the start of each episode.
-    Initializes the cart and pole according to `swing_up`, and in both cases
-    adds a small random initial velocity to break symmetry.
-    Args:
-      physics: An instance of `Physics`.
-    """
+        Initializes the cart and pole according to `swing_up`, and in both cases
+        adds a small random initial velocity to break symmetry.
+        Args:
+          physics: An instance of `Physics`.
+        """
         nv = physics.model.nv
         if self._swing_up:
             physics.named.data.qpos["slider"] = 0.01 * self.random.randn()

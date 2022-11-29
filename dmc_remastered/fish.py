@@ -43,10 +43,10 @@ def get_model(visual_seed, vary=["camera", "light"]):
             xml[5][0].attrib["pos"] = f"{camera_x} {camera_y} {camera_z}"
         if "light" in vary:
             xml[5][6][0].attrib["pos"] = f"{light_x} {light_y} {light_z}"
-    return ET.tostring(xml, encoding="utf8", method="xml")
+    return ET.tostring(xml, encoding="unicode", method="xml")
 
 
-@register("fish", "upright")
+@register("fish", "upright", visuals_vary=True, dynamics_vary=False)
 def upright(
     time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
 ):
@@ -59,7 +59,7 @@ def upright(
     )
 
 
-@register("fish", "swim")
+@register("fish", "swim", visuals_vary=True, dynamics_vary=False)
 def swim(
     time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
 ):
@@ -103,11 +103,11 @@ class Upright(base.Task):
 
     def __init__(self, random=None):
         """Initializes an instance of `Upright`.
-    Args:
-      random: Either an existing `numpy.random.RandomState` instance, an
-        integer seed for creating a new `RandomState`, or None to select a seed
-        automatically.
-    """
+        Args:
+          random: Either an existing `numpy.random.RandomState` instance, an
+            integer seed for creating a new `RandomState`, or None to select a seed
+            automatically.
+        """
         super(Upright, self).__init__(random=random)
 
     def initialize_episode(self, physics):
@@ -138,11 +138,11 @@ class Swim(base.Task):
 
     def __init__(self, random=None):
         """Initializes an instance of `Swim`.
-    Args:
-      random: Optional, either a `numpy.random.RandomState` instance, an
-        integer seed for creating a new `RandomState`, or None to select a seed
-        automatically (default).
-    """
+        Args:
+          random: Optional, either a `numpy.random.RandomState` instance, an
+            integer seed for creating a new `RandomState`, or None to select a seed
+            automatically (default).
+        """
         super(Swim, self).__init__(random=random)
 
     def initialize_episode(self, physics):

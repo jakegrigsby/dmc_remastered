@@ -35,10 +35,10 @@ def get_model(visual_seed, vary=["camera", "light"]):
             xml[4][2].attrib["pos"] = f"{camera_x} {camera_y} {camera_z}"
         if "light" in vary:
             xml[4][0].attrib["pos"] = f"{light_x} {light_y} {light_z}"
-    return ET.tostring(xml, encoding="utf8", method="xml")
+    return ET.tostring(xml, encoding="unicode", method="xml")
 
 
-@register("ball_in_cup", "catch")
+@register("ball_in_cup", "catch", visuals_vary=True, dynamics_vary=False)
 def catch(
     time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
 ):
@@ -47,7 +47,10 @@ def catch(
     physics = Physics.from_xml_string(model, assets)
     task = BallInCup(random=dynamics_seed)
     return control.Environment(
-        physics, task, time_limit=time_limit, control_timestep=_CONTROL_TIMESTEP,
+        physics,
+        task,
+        time_limit=time_limit,
+        control_timestep=_CONTROL_TIMESTEP,
     )
 
 
@@ -73,9 +76,9 @@ class BallInCup(base.Task):
 
     def initialize_episode(self, physics):
         """Sets the state of the environment at the start of each episode.
-    Args:
-      physics: An instance of `Physics`.
-    """
+        Args:
+          physics: An instance of `Physics`.
+        """
         # Find a collision-free random initial position of the ball.
         penetrating = True
         while penetrating:
