@@ -43,9 +43,15 @@ _ANGLE_BOUND = 8
 _COSINE_BOUND = np.cos(np.deg2rad(_ANGLE_BOUND))
 
 
-@register("pendulum", "swingup", visuals_vary=True, dynamics_vary=False)
+@register(
+    "pendulum", "swingup", visuals_vary=True, dynamics_vary=False, goals_vary=False
+)
 def swingup(
-    time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
+    time_limit=_DEFAULT_TIME_LIMIT,
+    dynamics_seed=None,
+    visual_seed=None,
+    goal_seed=None,
+    vary=DMCR_VARY,
 ):
     model = get_model(visual_seed, vary)
     assets, _ = get_assets(visual_seed, vary)

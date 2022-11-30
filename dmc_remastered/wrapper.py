@@ -82,6 +82,7 @@ class DMC_Remastered_Env(core.Env):
         task_builder,
         visual_seed_generator,
         dynamics_seed_generator,
+        goal_seed_generator,
         height=84,
         width=84,
         camera_id=0,
@@ -99,6 +100,7 @@ class DMC_Remastered_Env(core.Env):
 
         self._dynamics_seed_gen = dynamics_seed_generator
         self._visual_seed_gen = visual_seed_generator
+        self._goal_seed_gen = goal_seed_generator
         self._task_builder = task_builder
 
         self._env = self._task_builder(dynamics_seed=0, visual_seed=0, vary=vary)
@@ -126,9 +128,11 @@ class DMC_Remastered_Env(core.Env):
     def make_new_env(self):
         dynamics_seed = self._dynamics_seed_gen()
         visual_seed = self._visual_seed_gen()
+        goal_seed = self._goal_seed_gen()
         self._env = self._task_builder(
             dynamics_seed=dynamics_seed,
             visual_seed=visual_seed,
+            goal_seed=goal_seed,
             vary=self._vary,
         )
         self.seed(seed=dynamics_seed)

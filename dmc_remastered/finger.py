@@ -65,9 +65,13 @@ def get_model(visual_seed, vary=["camera", "light"]):
     return ET.tostring(xml, encoding="unicode", method="xml")
 
 
-@register("finger", "spin", visuals_vary=True, dynamics_vary=False)
+@register("finger", "spin", visuals_vary=True, dynamics_vary=False, goals_vary=False)
 def spin(
-    time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
+    time_limit=_DEFAULT_TIME_LIMIT,
+    dynamics_seed=None,
+    visual_seed=None,
+    goal_seed=None,
+    vary=DMCR_VARY,
 ):
     model = get_model(visual_seed, vary)
     assets, _ = get_assets(visual_seed, vary)
@@ -81,9 +85,15 @@ def spin(
     )
 
 
-@register("finger", "turn_easy", visuals_vary=True, dynamics_vary=False)
+@register(
+    "finger", "turn_easy", visuals_vary=True, dynamics_vary=False, goals_vary=False
+)
 def turn_easy(
-    time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
+    time_limit=_DEFAULT_TIME_LIMIT,
+    dynamics_seed=None,
+    visual_seed=None,
+    goal_seed=None,
+    vary=DMCR_VARY,
 ):
     model = get_model(visual_seed, vary)
     assets, _ = get_assets(visual_seed, vary)
@@ -98,9 +108,15 @@ def turn_easy(
     )
 
 
-@register("finger", "turn_hard", visuals_vary=True, dynamics_vary=False)
+@register(
+    "finger", "turn_hard", visuals_vary=True, dynamics_vary=False, goals_vary=False
+)
 def turn_hard(
-    time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
+    time_limit=_DEFAULT_TIME_LIMIT,
+    dynamics_seed=None,
+    visual_seed=None,
+    goal_seed=None,
+    vary=DMCR_VARY,
 ):
     model = get_model(visual_seed, vary)
     assets, _ = get_assets(visual_seed, vary)

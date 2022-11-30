@@ -38,9 +38,15 @@ def get_model(visual_seed, vary=["camera", "light"]):
     return ET.tostring(xml, encoding="unicode", method="xml")
 
 
-@register("cartpole", "balance", visuals_vary=True, dynamics_vary=False)
+@register(
+    "cartpole", "balance", visuals_vary=True, dynamics_vary=False, goals_vary=False
+)
 def balance(
-    time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
+    time_limit=_DEFAULT_TIME_LIMIT,
+    dynamics_seed=None,
+    visual_seed=None,
+    goal_seed=None,
+    vary=DMCR_VARY,
 ):
     model = get_model(visual_seed, vary)
     assets, _ = get_assets(visual_seed, vary)
@@ -49,9 +55,19 @@ def balance(
     return control.Environment(physics, task, time_limit=time_limit)
 
 
-@register("cartpole", "balance_sparse", visuals_vary=True, dynamics_vary=False)
+@register(
+    "cartpole",
+    "balance_sparse",
+    visuals_vary=True,
+    dynamics_vary=False,
+    goals_vary=False,
+)
 def balance_sparse(
-    time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
+    time_limit=_DEFAULT_TIME_LIMIT,
+    dynamics_seed=None,
+    visual_seed=None,
+    goal_seed=None,
+    vary=DMCR_VARY,
 ):
     model = get_model(visual_seed, vary)
     assets, _ = get_assets(visual_seed, vary)
@@ -60,9 +76,15 @@ def balance_sparse(
     return control.Environment(physics, task, time_limit=time_limit)
 
 
-@register("cartpole", "swingup", visuals_vary=True, dynamics_vary=False)
+@register(
+    "cartpole", "swingup", visuals_vary=True, dynamics_vary=False, goals_vary=False
+)
 def swingup(
-    time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
+    time_limit=_DEFAULT_TIME_LIMIT,
+    dynamics_seed=None,
+    visual_seed=None,
+    goal_seed=None,
+    vary=DMCR_VARY,
 ):
     model = get_model(visual_seed, vary)
     assets, _ = get_assets(visual_seed, vary)
@@ -71,11 +93,18 @@ def swingup(
     return control.Environment(physics, task, time_limit=time_limit)
 
 
-@register("cartpole", "swingup_sparse", visuals_vary=True, dynamics_vary=False)
+@register(
+    "cartpole",
+    "swingup_sparse",
+    visuals_vary=True,
+    dynamics_vary=False,
+    goals_vary=False,
+)
 def swingup_sparse(
     time_limit=_DEFAULT_TIME_LIMIT,
     dynamics_seed=None,
     visual_seed=None,
+    goal_seed=None,
     vary=DMCR_VARY,
 ):
     model = get_model(visual_seed, vary)

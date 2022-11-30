@@ -12,7 +12,8 @@ elif sys.argv[1] == "visuals":
     env, _ = dmcr.visual_generalization(sys.argv[2], sys.argv[3], 100000)
 elif sys.argv[1] == "both":
     env, _ = dmcr.full_generalization(sys.argv[2], sys.argv[3], 100000)
-
+elif sys.argv[1] == "goals":
+    env, _ = dmcr.goal_generalization(sys.argv[2], sys.argv[3], 10000)
 else:
     raise ValueError()
 

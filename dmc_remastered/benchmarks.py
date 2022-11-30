@@ -2,7 +2,7 @@ import random
 
 import numpy as np
 
-from dmc_remastered import ALL_ENVS, DMCR_VARY, VISUAL_ENVS, DYNAMICS_ENVS
+from dmc_remastered import ALL_ENVS, GOAL_ENVS, VISUAL_ENVS, DYNAMICS_ENVS, DMCR_VARY
 
 from .wrapper import DMC_Remastered_Env, FrameStack
 
@@ -29,12 +29,18 @@ def visual_sim2real(
     channels_last=False,
     vary=DMCR_VARY,
 ):
+    try:
+        VISUAL_ENVS[domain][task]
+    except KeyError:
+        raise KeyError(f"{domain} {task} is not configured for visual generalization.")
+
     random_start = random.randint(1, 1_000_000)
     train_env = DMC_Remastered_Env(
         task_builder=VISUAL_ENVS[domain][task],
         visual_seed_generator=uniform_seed_generator(
             random_start, random_start + num_levels
         ),
+        goal_seed_generator=fixed_seed_generator(0),
         dynamics_seed_generator=fixed_seed_generator(0),
         height=height,
         width=width,
@@ -48,6 +54,7 @@ def visual_sim2real(
         task_builder=VISUAL_ENVS[domain][task],
         visual_seed_generator=fixed_seed_generator(0),
         dynamics_seed_generator=fixed_seed_generator(0),
+        goal_seed_generator=fixed_seed_generator(0),
         height=height,
         width=width,
         from_pixels=True,
@@ -76,6 +83,7 @@ def visual_classic(
         task_builder=ALL_ENVS[domain][task],
         visual_seed_generator=fixed_seed_generator(visual_seed),
         dynamics_seed_generator=fixed_seed_generator(0),
+        goal_seed_generator=fixed_seed_generator(0),
         height=height,
         width=width,
         from_pixels=True,
@@ -88,6 +96,7 @@ def visual_classic(
         task_builder=ALL_ENVS[domain][task],
         visual_seed_generator=fixed_seed_generator(visual_seed),
         dynamics_seed_generator=fixed_seed_generator(0),
+        goal_seed_generator=fixed_seed_generator(0),
         height=height,
         width=width,
         from_pixels=True,
@@ -98,6 +107,47 @@ def visual_classic(
     )
     train_env = FrameStack(train_env, frame_stack)
     test_env = FrameStack(test_env, frame_stack)
+    return train_env, test_env
+
+
+def goal_generalization(
+    domain,
+    task,
+    num_levels,
+    # visual seed only impacts the render
+    visual_seed=0,
+    vary=DMCR_VARY,
+):
+    try:
+        GOAL_ENVS[domain][task]
+    except KeyError:
+        raise KeyError(f"{domain} {task} is not configured for goal generalization.")
+
+    random_start = random.randint(1, 1_000_000)
+    train_env = DMC_Remastered_Env(
+        task_builder=GOAL_ENVS[domain][task],
+        dynamics_seed_generator=fixed_seed_generator(0),
+        visual_seed_generator=fixed_seed_generator(visual_seed),
+        goal_seed_generator=uniform_seed_generator(
+            random_start, random_start + num_levels
+        ),
+        from_pixels=False,
+        height=256,
+        width=256,
+        frame_skip=1,
+        vary=vary,
+    )
+    test_env = DMC_Remastered_Env(
+        task_builder=GOAL_ENVS[domain][task],
+        dynamics_seed_generator=fixed_seed_generator(0),
+        visual_seed_generator=fixed_seed_generator(visual_seed),
+        goal_seed_generator=uniform_seed_generator(1, 1_000_000),
+        height=256,
+        width=256,
+        from_pixels=False,
+        frame_skip=1,
+        vary=vary,
+    )
     return train_env, test_env
 
 
@@ -123,6 +173,7 @@ def dynamics_generalization(
             random_start, random_start + num_levels
         ),
         visual_seed_generator=fixed_seed_generator(visual_seed),
+        goal_seed_generator=fixed_seed_generator(0),
         from_pixels=False,
         height=256,
         width=256,
@@ -133,6 +184,7 @@ def dynamics_generalization(
         task_builder=DYNAMICS_ENVS[domain][task],
         dynamics_seed_generator=uniform_seed_generator(1, 1_000_000),
         visual_seed_generator=fixed_seed_generator(visual_seed),
+        goal_seed_generator=fixed_seed_generator(0),
         height=256,
         width=256,
         from_pixels=False,
@@ -169,6 +221,7 @@ def full_generalization(
         dynamics_seed_generator=uniform_seed_generator(
             random_start, random_start + num_levels
         ),
+        goal_seed_generator=fixed_seed_generator(0),
         height=height,
         width=width,
         from_pixels=True,
@@ -181,6 +234,7 @@ def full_generalization(
         task_builder=ALL_ENVS[domain][task],
         visual_seed_generator=uniform_seed_generator(1, 1_000_000),
         dynamics_seed_generator=uniform_seed_generator(1, 1_000_000),
+        goal_seed_generator=fixed_seed_generator(0),
         height=height,
         width=width,
         from_pixels=True,
@@ -217,6 +271,7 @@ def visual_generalization(
             random_start, random_start + num_levels
         ),
         dynamics_seed_generator=fixed_seed_generator(0),
+        goal_seed_generator=fixed_seed_generator(0),
         height=height,
         width=width,
         from_pixels=True,
@@ -229,6 +284,7 @@ def visual_generalization(
         task_builder=VISUAL_ENVS[domain][task],
         visual_seed_generator=uniform_seed_generator(1, 1_000_000),
         dynamics_seed_generator=fixed_seed_generator(0),
+        goal_seed_generator=fixed_seed_generator(0),
         height=height,
         width=width,
         from_pixels=True,

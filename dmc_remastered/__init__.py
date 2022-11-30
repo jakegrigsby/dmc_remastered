@@ -16,9 +16,12 @@ DMCR_VARY = [
 ALL_ENVS = {}
 VISUAL_ENVS = {}
 DYNAMICS_ENVS = {}
+GOAL_ENVS = {}
 
 
-def register(domain: str, task: str, visuals_vary: bool, dynamics_vary: bool):
+def register(
+    domain: str, task: str, visuals_vary: bool, dynamics_vary: bool, goals_vary: bool
+):
     def _register(func):
         if domain not in ALL_ENVS:
             ALL_ENVS[domain] = {}
@@ -31,6 +34,10 @@ def register(domain: str, task: str, visuals_vary: bool, dynamics_vary: bool):
             if domain not in DYNAMICS_ENVS:
                 DYNAMICS_ENVS[domain] = {}
             DYNAMICS_ENVS[domain][task] = func
+        if goals_vary:
+            if domain not in GOAL_ENVS:
+                GOAL_ENVS[domain] = {}
+            GOAL_ENVS[domain][task] = func
         return func
 
     return _register
@@ -43,6 +50,7 @@ from .benchmarks import (
     visual_generalization,
     dynamics_generalization,
     full_generalization,
+    goal_generalization,
 )
 from .cartpole import balance, balance_sparse, swingup, swingup_sparse
 from .cheetah import run

@@ -45,9 +45,13 @@ _STAND_HEIGHT = 0.6
 _HOP_SPEED = 2
 
 
-@register("hopper", "hop", visuals_vary=True, dynamics_vary=False)
+@register("hopper", "hop", visuals_vary=True, dynamics_vary=False, goals_vary=False)
 def hop(
-    time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
+    time_limit=_DEFAULT_TIME_LIMIT,
+    dynamics_seed=None,
+    visual_seed=None,
+    goal_seed=None,
+    vary=DMCR_VARY,
 ):
     model = get_model(visual_seed, vary)
     assets, _ = get_assets(visual_seed, vary)
@@ -61,9 +65,13 @@ def hop(
     )
 
 
-@register("hopper", "stand", visuals_vary=True, dynamics_vary=False)
+@register("hopper", "stand", visuals_vary=True, dynamics_vary=False, goals_vary=False)
 def stand(
-    time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
+    time_limit=_DEFAULT_TIME_LIMIT,
+    dynamics_seed=None,
+    visual_seed=None,
+    goal_seed=None,
+    vary=DMCR_VARY,
 ):
     model = get_model(visual_seed, vary)
     assets, _ = get_assets(visual_seed, vary)

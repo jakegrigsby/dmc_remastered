@@ -53,6 +53,7 @@
         </body>
       </body>
     </body>
+    <geom name="goal" pos="0 0 .01" material="target" type="sphere" size=".05"/>
   </worldbody>
 
   <sensor>

@@ -76,34 +76,56 @@ def get_model(visual_seed, dynamics_seed, vary=["camera"]):
     return ET.tostring(xml, encoding="unicode", method="xml"), choices
 
 
-@register("walker", "stand", visuals_vary=True, dynamics_vary=True)
+@register("walker", "stand", visuals_vary=True, dynamics_vary=True, goals_vary=False)
 def stand(
-    time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
+    time_limit=_DEFAULT_TIME_LIMIT,
+    dynamics_seed=None,
+    visual_seed=None,
+    goal_seed=None,
+    vary=DMCR_VARY,
 ):
     model, local_choices = get_model(
         visual_seed=visual_seed, dynamics_seed=dynamics_seed, vary=vary
     )
     assets, global_choices = get_assets(visual_seed, vary)
     physics = Physics.from_xml_string(model, assets)
-    task = PlanarWalker(move_speed=0, random=random.randint(1, 1_000_000))
+    task = PlanarWalker(
+        move_speed=0, goal_pos=None, random=random.randint(1, 1_000_000)
+    )
     return control.Environment(
         physics,
         task,
         time_limit=time_limit,
+        goal_seed=goal_seed,
         control_timestep=_CONTROL_TIMESTEP,
     )
 
 
-@register("walker", "walk", visuals_vary=True, dynamics_vary=True)
+@register("walker", "walk", visuals_vary=True, dynamics_vary=True, goals_vary=True)
 def walk(
-    time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
+    time_limit=_DEFAULT_TIME_LIMIT,
+    dynamics_seed=None,
+    visual_seed=None,
+    goal_seed=None,
+    vary=DMCR_VARY,
 ):
     model, local_choices = get_model(
         visual_seed=visual_seed, dynamics_seed=dynamics_seed, vary=vary
     )
     assets, global_choices = get_assets(visual_seed, vary)
     physics = Physics.from_xml_string(model, assets)
-    task = PlanarWalker(move_speed=_WALK_SPEED, random=random.randint(1, 1_000_000))
+
+    if goal_seed != 0:
+        with dmcr_random(goal_seed):
+            goal_x = random.uniform(-1.0, 1.0)
+            goal_y = random.uniform(-1.0, 1.0)
+        goal_pos = (goal_x, goal_y)
+    else:
+        goal_pos = None
+
+    task = PlanarWalker(
+        move_speed=_WALK_SPEED, goal_pos=goal_pos, random=random.randint(1, 1_000_000)
+    )
     return control.Environment(
         physics,
         task,
@@ -112,7 +134,7 @@ def walk(
     )
 
 
-@register("walker", "run", visuals_vary=True, dynamics_vary=True)
+@register("walker", "run", visuals_vary=True, dynamics_vary=True, goals_vary=False)
 def run(
     time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
 ):
@@ -121,7 +143,9 @@ def run(
     )
     assets, global_choices = get_assets(visual_seed, vary)
     physics = Physics.from_xml_string(model, assets)
-    task = PlanarWalker(move_speed=_RUN_SPEED, random=random.randint(1, 1_000_000))
+    task = PlanarWalker(
+        move_speed=_RUN_SPEED, goal_pos=goal_pos, random=random.randint(1, 1_000_000)
+    )
     return control.Environment(
         physics,
         task,
@@ -149,11 +173,20 @@ class Physics(mujoco.Physics):
         """Returns planar orientations of all bodies."""
         return self.named.data.xmat[1:, ["xx", "xz"]].ravel()
 
+    def goal_location(self):
+        return self.named.data.geom_xpos["target", :2]
+
+    def agent_location(self):
+        return self.named.data.geom_xpos["torso", :2]
+
+    def dist_from_agent_to_goal(self):
+        return np.linalg.norm(self.agent_location() - self.goal_location())
+
 
 class PlanarWalker(base.Task):
     """A planar walker task."""
 
-    def __init__(self, move_speed, random=None):
+    def __init__(self, move_speed, goal_pos=None, random=None):
         """Initializes an instance of `PlanarWalker`.
         Args:
           move_speed: A float. If this value is zero, reward is given simply for
@@ -163,6 +196,7 @@ class PlanarWalker(base.Task):
             integer seed for creating a new `RandomState`, or None to select a seed
             automatically (default).
         """
+        self.goal_pos = goal_pos
         self._move_speed = move_speed
         super(PlanarWalker, self).__init__(random=random)
 
@@ -185,7 +219,12 @@ class PlanarWalker(base.Task):
         return obs
 
     def get_reward(self, physics):
-        """Returns a reward to the agent."""
+        if self.goal_pos is None:
+            return self._get_default_reward(physics)
+        else:
+            return self._get_goal_based_reward(physics)
+
+    def _get_default_reward(self, physics):
         standing = rewards.tolerance(
             physics.torso_height(),
             bounds=(_STAND_HEIGHT, float("inf")),
@@ -204,3 +243,7 @@ class PlanarWalker(base.Task):
                 sigmoid="linear",
             )
             return stand_reward * (5 * move_reward + 1) / 6
+
+    def _get_goal_based_reward(self, physics):
+        breakpoint()
+        return -physics.dist_from_agent_goal().item()
