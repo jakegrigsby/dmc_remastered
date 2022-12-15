@@ -96,7 +96,6 @@ def stand(
         physics,
         task,
         time_limit=time_limit,
-        goal_seed=goal_seed,
         control_timestep=_CONTROL_TIMESTEP,
     )
 
@@ -136,7 +135,7 @@ def walk(
 
 @register("walker", "run", visuals_vary=True, dynamics_vary=True, goals_vary=False)
 def run(
-    time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, vary=DMCR_VARY
+    time_limit=_DEFAULT_TIME_LIMIT, dynamics_seed=None, visual_seed=None, goal_seed=None, vary=DMCR_VARY
 ):
     model, local_choices = get_model(
         visual_seed=visual_seed, dynamics_seed=dynamics_seed, vary=vary
@@ -144,7 +143,7 @@ def run(
     assets, global_choices = get_assets(visual_seed, vary)
     physics = Physics.from_xml_string(model, assets)
     task = PlanarWalker(
-        move_speed=_RUN_SPEED, goal_pos=goal_pos, random=random.randint(1, 1_000_000)
+        move_speed=_RUN_SPEED, goal_pos=None, random=random.randint(1, 1_000_000)
     )
     return control.Environment(
         physics,

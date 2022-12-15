@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 if sys.argv[1] == "dynamics":
     env, _ = dmcr.dynamics_generalization(
-        sys.argv[2], sys.argv[3], 100000, visual_seed=0
+        sys.argv[2], sys.argv[3], 100000, visual_seed=283
     )
 elif sys.argv[1] == "visuals":
     env, _ = dmcr.visual_generalization(sys.argv[2], sys.argv[3], 100000)
