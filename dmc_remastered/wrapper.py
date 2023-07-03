@@ -1,11 +1,11 @@
 import collections
 import random
 
-import gym
+import gymnasium as gym
 import numpy as np
 import cv2
 from dm_env import specs
-from gym import Wrapper, core, spaces
+from gymnasium import Wrapper, core, spaces
 
 from dmc_remastered import DMCR_VARY
 
@@ -24,15 +24,15 @@ class FrameStack(Wrapper):
         )
 
     def reset(self):
-        obs = self.env.reset()
+        obs, info = self.env.reset()
         for _ in range(self._k):
             self._frames.append(obs)
-        return self._get_obs()
+        return self._get_obs(), info
 
     def step(self, action):
-        obs, reward, done, info = self.env.step(action)
+        obs, reward, terminated, truncated, info = self.env.step(action)
         self._frames.append(obs)
-        return self._get_obs(), reward, done, info
+        return self._get_obs(), reward, terminated, truncated, info
 
     def _get_obs(self):
         assert len(self._frames) == self._k
@@ -42,7 +42,7 @@ class FrameStack(Wrapper):
 def _spec_to_box(spec):
     def extract_min_max(s):
         assert s.dtype == np.float64 or s.dtype == np.float32
-        dim = np.int(np.prod(s.shape))
+        dim = int(np.prod(s.shape))
         if type(s) == specs.Array:
             bound = np.inf * np.ones(dim, dtype=np.float32)
             return -bound, bound
@@ -67,6 +67,20 @@ def _flatten_obs(obs):
         flat = np.array([v]) if np.isscalar(v) else v.ravel()
         obs_pieces.append(flat)
     return np.concatenate(obs_pieces, axis=0)
+
+
+class OldGymWrapper(gym.Wrapper):
+    def __init__(self, env):
+        super().__init__(env)
+
+    def reset(self):
+        breakpoint()
+        obs, info = self.env.reset()
+        return obs
+
+    def step(self, action):
+        state, reward, terminated, truncated, info = self.env.step(action)
+        return state, reward, (terminated or truncated), info
 
 
 class DMC_Remastered_Env(core.Env):
@@ -126,6 +140,8 @@ class DMC_Remastered_Env(core.Env):
     def make_new_env(self):
         dynamics_seed = self._dynamics_seed_gen()
         visual_seed = self._visual_seed_gen()
+        print(f"dynamics seed {dynamics_seed}")
+        print(f"visual seed {visual_seed}")
         self._env = self._task_builder(
             dynamics_seed=dynamics_seed,
             visual_seed=visual_seed,
@@ -184,12 +200,12 @@ class DMC_Remastered_Env(core.Env):
         for _ in range(self._frame_skip):
             time_step = self._env.step(action)
             reward += time_step.reward or 0
-            done = time_step.last()
-            if done:
+            truncated = time_step.last()
+            if truncated:
                 break
         obs = self._get_obs(time_step)
         self.current_state = _flatten_obs(time_step.observation)
-        return obs, reward, done, {}
+        return obs, reward, False, truncated, {}
 
     def reset(self, soft=False):
         if not soft:
@@ -198,7 +214,7 @@ class DMC_Remastered_Env(core.Env):
         time_step = self._env.reset()
         self.current_state = _flatten_obs(time_step.observation)
         obs = self._get_obs(time_step)
-        return obs
+        return obs, {}
 
     def render_env(self, mode="rgb_array", height=None, width=None, camera_id=0):
         assert mode == "rgb_array", "only support rgb_array mode, given %s" % mode

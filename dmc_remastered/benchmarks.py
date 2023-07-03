@@ -9,7 +9,7 @@ from .wrapper import DMC_Remastered_Env, FrameStack
 
 def uniform_seed_generator(low, high):
     def _generate():
-        return random.randint(low, high)
+        return random.randrange(low, high)
 
     return _generate
 
@@ -146,6 +146,7 @@ def full_generalization(
     domain,
     task,
     num_levels,
+    from_pixels=True,
     frame_stack=3,
     height=84,
     width=84,
@@ -171,7 +172,7 @@ def full_generalization(
         ),
         height=height,
         width=width,
-        from_pixels=True,
+        from_pixels=from_pixels,
         camera_id=0,
         frame_skip=frame_skip,
         channels_first=not channels_last,
@@ -183,14 +184,15 @@ def full_generalization(
         dynamics_seed_generator=uniform_seed_generator(1, 1_000_000),
         height=height,
         width=width,
-        from_pixels=True,
+        from_pixels=from_pixels,
         camera_id=0,
         frame_skip=frame_skip,
         channels_first=not channels_last,
         vary=vary,
     )
-    train_env = FrameStack(train_env, frame_stack)
-    test_env = FrameStack(test_env, frame_stack)
+    if from_pixels:
+        train_env = FrameStack(train_env, frame_stack)
+        test_env = FrameStack(test_env, frame_stack)
     return train_env, test_env
 
 
