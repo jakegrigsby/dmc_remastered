@@ -73,8 +73,7 @@ class OldGymWrapper(gym.Wrapper):
     def __init__(self, env):
         super().__init__(env)
 
-    def reset(self):
-        breakpoint()
+    def reset(self, seed=None, options=None):
         obs, info = self.env.reset()
         return obs
 
@@ -207,7 +206,10 @@ class DMC_Remastered_Env(core.Env):
         self.current_state = _flatten_obs(time_step.observation)
         return obs, reward, False, truncated, {}
 
-    def reset(self, soft=False):
+    def reset(self, soft=False, seed=None, options=None):
+        assert (
+            seed is None
+        ), "Random seeding is built into DMCR constructor, this is here for compatability with gym .26+"
         if not soft:
             # make a whole new env (new visual and/or dynamics seeds)
             self.make_new_env()
