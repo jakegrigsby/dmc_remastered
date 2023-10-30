@@ -17,14 +17,14 @@ class FrameStack(Wrapper):
         self._frames = collections.deque([], maxlen=num_stack)
         shp = env.observation_space.shape
         self.observation_space = gym.spaces.Box(
-            low=0,
-            high=1,
+            low=np.repeat(env.observation_space.low, num_stack, axis=0),
+            high=np.repeat(env.observation_space.high, num_stack, axis=0),
             shape=((shp[0] * num_stack,) + shp[1:]),
             dtype=env.observation_space.dtype,
         )
 
-    def reset(self):
-        obs, info = self.env.reset()
+    def reset(self, *args, **kwargs):
+        obs, info = self.env.reset(*args, **kwargs)
         for _ in range(self._k):
             self._frames.append(obs)
         return self._get_obs(), info
@@ -139,8 +139,8 @@ class DMC_Remastered_Env(core.Env):
     def make_new_env(self):
         dynamics_seed = self._dynamics_seed_gen()
         visual_seed = self._visual_seed_gen()
-        print(f"dynamics seed {dynamics_seed}")
-        print(f"visual seed {visual_seed}")
+        # print(f"dynamics seed {dynamics_seed}")
+        # print(f"visual seed {visual_seed}")
         self._env = self._task_builder(
             dynamics_seed=dynamics_seed,
             visual_seed=visual_seed,
