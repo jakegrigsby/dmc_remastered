@@ -1,4 +1,5 @@
 import random
+import warnings
 
 import numpy as np
 
@@ -206,11 +207,17 @@ def visual_generalization(
     frame_skip=1,
     channels_last=False,
     vary=DMCR_VARY,
+    from_pixels=True,
 ):
     try:
         VISUAL_ENVS[domain][task]
     except KeyError:
         raise KeyError(f"{domain} {task} is not configured for visual generalization.")
+
+    if not from_pixels:
+        warnings.warn(
+            f"Training visual_generalization from states... only useful in very specific situations."
+        )
 
     random_start = random.randint(1, 1_000_000)
     train_env = DMC_Remastered_Env(
@@ -221,7 +228,7 @@ def visual_generalization(
         dynamics_seed_generator=fixed_seed_generator(0),
         height=height,
         width=width,
-        from_pixels=True,
+        from_pixels=from_pixels,
         camera_id=0,
         frame_skip=frame_skip,
         channels_first=not channels_last,
@@ -233,7 +240,7 @@ def visual_generalization(
         dynamics_seed_generator=fixed_seed_generator(0),
         height=height,
         width=width,
-        from_pixels=True,
+        from_pixels=from_pixels,
         camera_id=0,
         frame_skip=frame_skip,
         channels_first=not channels_last,
